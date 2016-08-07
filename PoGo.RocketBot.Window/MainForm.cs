@@ -7,7 +7,6 @@ namespace PoGo.RocketBot.Window
 {
     public partial class MainForm : Form
     {
-        private static string _title = "RocketBot";
         public static MainForm Instance;
 
         public MainForm()
@@ -15,12 +14,11 @@ namespace PoGo.RocketBot.Window
             InitializeComponent();
             CenterToScreen();
             Instance = this;
-            _title += " v" + Assembly.GetExecutingAssembly().GetName().Version;
         }
 
         public void MainForm_Load(object sender, EventArgs e)
         {
-
+            Text = $"RocketBot v{Assembly.GetExecutingAssembly().GetName().Version}";
         }
 
         public static void ColoredConsoleWrite(Color color, string text)

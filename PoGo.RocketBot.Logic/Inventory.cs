@@ -84,10 +84,6 @@ namespace PoGo.RocketBot.Logic
             return await RefreshCachedInventory();
         }
 
-
-
-
-
         public async Task<IEnumerable<PokemonData>> GetDuplicatePokemonToTransfer( 
                 IEnumerable<PokemonId> pokemonsNotToTransfer, IEnumerable<PokemonId> pokemonsToEvolve,
                 bool keepPokemonsThatCanEvolve = false, bool prioritizeIVoverCp = false
