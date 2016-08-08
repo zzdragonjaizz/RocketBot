@@ -133,7 +133,11 @@ namespace PoGo.RocketBot.CLI
             session.EventDispatcher.EventReceived += evt => listener.Listen(evt, session);
             session.EventDispatcher.EventReceived += evt => aggregator.Listen(evt, session);
             if(settings.UseWebsocket)
-                session.EventDispatcher.EventReceived += evt => new WebSocketInterface(settings.WebSocketPort, session).Listen(evt, session);
+            {
+                var websocket = new WebSocketInterface(settings.WebSocketPort, session);
+                session.EventDispatcher.EventReceived += evt => websocket.Listen(evt, session);
+            }
+
             ProgressBar.fill(70);
 
             machine.SetFailureState(new LoginState());
@@ -145,12 +149,17 @@ namespace PoGo.RocketBot.CLI
             session.Navigation.UpdatePositionEvent +=
                 (lat, lng) => session.EventDispatcher.Send(new UpdatePositionEvent {Latitude = lat, Longitude = lng});
             session.Navigation.UpdatePositionEvent += Navigation_UpdatePositionEvent;
+
             ProgressBar.fill(100);
 
             machine.AsyncStart(new VersionCheckState(), session);
             if (session.LogicSettings.UseSnipeLocationServer)
                 SnipePokemonTask.AsyncStart(session);
-            Console.Clear();
+
+            try {
+                Console.Clear();
+            }
+            catch (IOException) { }
 
             QuitEvent.WaitOne();
         }

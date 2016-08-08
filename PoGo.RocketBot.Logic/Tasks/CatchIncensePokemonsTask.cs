@@ -19,7 +19,8 @@ namespace PoGo.RocketBot.Logic.Tasks
         public static async Task Execute(ISession session, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
+            if (!session.LogicSettings.CatchPokemon) return;
+            
             Logger.Write(session.Translation.GetTranslation(TranslationString.LookingForIncensePokemon), LogLevel.Debug);
 
             var incensePokemon = await session.Client.Map.GetIncensePokemons();
@@ -49,7 +50,7 @@ namespace PoGo.RocketBot.Logic.Tasks
 
                     var encounter =
                         await
-                            session.Client.Encounter.EncounterIncensePokemon((long) pokemon.EncounterId,
+                            session.Client.Encounter.EncounterIncensePokemon((ulong) pokemon.EncounterId,
                                 pokemon.SpawnPointId);
 
                     if (encounter.Result == IncenseEncounterResponse.Types.Result.IncenseEncounterSuccess && session.LogicSettings.CatchPokemon)

@@ -8,6 +8,7 @@ using PoGo.RocketBot.Logic.Event;
 using PoGo.RocketBot.Logic.PoGoUtils;
 using PoGo.RocketBot.Logic.State;
 using POGOProtos.Data;
+using PoGo.NecroBot.Logic.Utils;
 
 #endregion
 
@@ -61,6 +62,8 @@ namespace PoGo.RocketBot.Logic.Tasks
                     BestPerfection = PokemonInfo.CalculatePokemonPerfection(bestPokemonOfType),
                     FamilyCandies = family.Candy_
                 });
+
+                DelayingUtils.Delay(session.LogicSettings.DelayBetweenPlayerActions, 0);
             }
         }
     }
