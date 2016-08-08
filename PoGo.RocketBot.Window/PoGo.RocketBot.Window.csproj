@@ -184,6 +184,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\PoGo-Protos\POGOProtos\POGOProtos.csproj">
+      <Project>{A03A7BB2-4F0B-467B-84B2-9A76E6AAE6FB}</Project>
+      <Name>POGOProtos</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PoGo.RocketBot.Logic\PoGo.RocketBot.Logic.csproj">
       <Project>{0739E40D-C589-4AEB-93E5-EE8CD6773C60}</Project>
       <Name>PoGo.RocketBot.Logic</Name>

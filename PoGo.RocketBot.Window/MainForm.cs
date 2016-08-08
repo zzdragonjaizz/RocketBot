@@ -1,12 +1,21 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using PoGo.RocketBot.Logic;
+using PoGo.RocketBot.Logic.Common;
+using PoGo.RocketBot.Logic.Event;
+using PoGo.RocketBot.Logic.Logging;
+using PoGo.RocketBot.Logic.State;
+using PoGo.RocketBot.Logic.Tasks;
+using PoGo.RocketBot.Logic.Utils;
 
 namespace PoGo.RocketBot.Window
 {
     public partial class MainForm : Form
     {
+
         public static MainForm Instance;
 
         public MainForm()
@@ -14,6 +23,52 @@ namespace PoGo.RocketBot.Window
             InitializeComponent();
             CenterToScreen();
             Instance = this;
+
+            
+
+            var profilePath = Directory.GetCurrentDirectory();
+            var profileConfigPath = Path.Combine(profilePath, "config");
+            var configFile = Path.Combine(profileConfigPath, "config.json");
+
+            string subPath = "";
+            GlobalSettings settings;
+            Boolean boolNeedsSetup = false;
+
+            if (File.Exists(configFile))
+            {
+                if (!VersionCheckState.IsLatest())
+                    settings = Logic.GlobalSettings.Load(subPath, true);
+                else
+                    settings = Logic.GlobalSettings.Load(subPath);
+            }
+            else
+            {
+                settings = new Logic.GlobalSettings();
+                settings.ProfilePath = profilePath;
+                settings.ProfileConfigPath = profileConfigPath;
+                settings.GeneralConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "config");
+
+                boolNeedsSetup = true;
+            }
+            new ClientSettings(settings);
+            var session = new Session(new ClientSettings(settings), new LogicSettings(settings));
+
+            if (boolNeedsSetup)
+            {
+                if (Logic.GlobalSettings.PromptForSetup(session.Translation) && !settings.isGui)
+                    session = Logic.GlobalSettings.SetupSettings(session, settings, configFile);
+                else
+                {
+                    Logic.GlobalSettings.Load(subPath);
+
+                    Logger.Write("Press a Key to continue...",
+                        LogLevel.Warning);
+                    Console.ReadKey();
+                    return;
+                }
+
+            }
+
         }
 
         public void MainForm_Load(object sender, EventArgs e)
