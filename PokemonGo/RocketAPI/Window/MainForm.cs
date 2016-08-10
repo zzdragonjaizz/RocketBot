@@ -290,53 +290,57 @@ namespace PokemonGo.RocketAPI.Window
                     {
                         while (true)
                         {
-                            if (_botStarted)
+                            try
                             {
-                                var inv = await _client.Inventory.GetInventory();
-                                var stats = inv.InventoryDelta.InventoryItems.Select(i => i.InventoryItemData?.PlayerStats).Where(i => i != null).ToArray();
-                                var player = await _client.Player.GetPlayer();
-                                short hoursLeft = 0;
-                                short minutesLeft = 0;
-                                var secondsLeft = 0;
-                                double xpSec = 0;
-                                var v = stats.First();
-                                if (v != null)
+                                if (_botStarted)
                                 {
-                                    var XpDiff = GetXpDiff(_client, v.Level);
-                                //Calculating the exp needed to level up
-                                float expNextLvl = v.NextLevelXp - v.Experience;
-                                //Calculating the exp made per second
-                                xpSec = Math.Round(_totalExperience / GetRuntime()) / 60 / 60;
-                                //Calculating the seconds left to level up
-                                if (xpSec != 0)
-                                        secondsLeft = Convert.ToInt32(expNextLvl / xpSec);
-                                //formatting data to make an output like DateFormat
-                                while (secondsLeft > 60)
+                                    var inv = await _client.Inventory.GetInventory();
+                                    var stats = inv.InventoryDelta.InventoryItems.Select(i => i.InventoryItemData?.PlayerStats).Where(i => i != null).ToArray();
+                                    var player = await _client.Player.GetPlayer();
+                                    short hoursLeft = 0;
+                                    short minutesLeft = 0;
+                                    var secondsLeft = 0;
+                                    double xpSec = 0;
+                                    var v = stats.First();
+                                    if (v != null)
                                     {
-                                        secondsLeft -= 60;
-                                        if (minutesLeft < 60)
+                                        var XpDiff = GetXpDiff(_client, v.Level);
+                                        //Calculating the exp needed to level up
+                                        float expNextLvl = v.NextLevelXp - v.Experience;
+                                        //Calculating the exp made per second
+                                        xpSec = Math.Round(_totalExperience / GetRuntime()) / 60 / 60;
+                                        //Calculating the seconds left to level up
+                                        if (xpSec != 0)
+                                            secondsLeft = Convert.ToInt32(expNextLvl / xpSec);
+                                        //formatting data to make an output like DateFormat
+                                        while (secondsLeft > 60)
                                         {
-                                            minutesLeft++;
+                                            secondsLeft -= 60;
+                                            if (minutesLeft < 60)
+                                            {
+                                                minutesLeft++;
+                                            }
+                                            else
+                                            {
+                                                minutesLeft = 0;
+                                                hoursLeft++;
+                                            }
                                         }
-                                        else
-                                        {
-                                            minutesLeft = 0;
-                                            hoursLeft++;
-                                        }
-                                    }
 
-                                    SetStatusText(
-                                        string.Format(
-                                            player.PlayerData.Username +
-                                            " | Level: {0:0} - ({2:0} / {3:0}) | Runtime {1} | Stardust: {4:0}", v.Level,
-                                            _getSessionRuntimeInTimeFormat(), v.Experience - v.PrevLevelXp - XpDiff,
-                                            v.NextLevelXp - v.PrevLevelXp - XpDiff, player.PlayerData.Currencies.ToArray()[1].Amount) +
-                                        " | XP/Hour: " + Math.Round(_totalExperience / GetRuntime()) + " | Pokemon/Hour: " +
-                                        Math.Round(_totalPokemon / GetRuntime()) + " | NextLevel in: " + hoursLeft + ":" + minutesLeft +
-                                        ":" + secondsLeft);
+                                        SetStatusText(
+                                            string.Format(
+                                                player.PlayerData.Username +
+                                                " | Level: {0:0} - ({2:0} / {3:0}) | Runtime {1} | Stardust: {4:0}", v.Level,
+                                                _getSessionRuntimeInTimeFormat(), v.Experience - v.PrevLevelXp - XpDiff,
+                                                v.NextLevelXp - v.PrevLevelXp - XpDiff, player.PlayerData.Currencies.ToArray()[1].Amount) +
+                                            " | XP/Hour: " + Math.Round(_totalExperience / GetRuntime()) + " | Pokemon/Hour: " +
+                                            Math.Round(_totalPokemon / GetRuntime()) + " | NextLevel in: " + hoursLeft + ":" + minutesLeft +
+                                            ":" + secondsLeft);
+                                    }
                                 }
+                                await Task.Delay(1000);
                             }
-                            await Task.Delay(1000);
+                            catch (Exception ex) { }
                         }
                     })).Start();
                     _initialized = true;
@@ -826,6 +830,8 @@ namespace PokemonGo.RocketAPI.Window
                                 else
                                 {
                                     ColoredConsoleWrite(Color.LightGreen, $"Pokestop error on attempt {i}: {fortSearch.Result}");
+                                    if (fortSearch.Result == FortSearchResponse.Types.Result.OutOfRange)
+                                        throw new Exception();
                                 }
                             }
                             if (done)
@@ -1391,7 +1397,11 @@ namespace PokemonGo.RocketAPI.Window
                 }
                 else
                 {
-                    await ForceUnban(_client);
+                    try
+                    {
+                        await ForceUnban(_client);
+                    }
+                    catch (Exception) { }
                 }
             }
             else
