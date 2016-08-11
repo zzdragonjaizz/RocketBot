@@ -1,7 +1,8 @@
-﻿using POGOProtos.Data;
+﻿using System.Collections.Generic;
+using PokemonGo.RocketAPI.Helpers;
+using POGOProtos.Data;
 using POGOProtos.Enums;
 using POGOProtos.Networking.Responses;
-using System.Collections.Generic;
 
 namespace PokemonGo.RocketAPI.Window
 {
@@ -47,12 +48,13 @@ namespace PokemonGo.RocketAPI.Window
             get { return PokemonData.IndividualStamina; }
         }
 
-        public float GetIV
+        public double GetIV
         {
-            get { return (IndividualAttack + IndividualDefense + IndividualStamina) / 45f; }
+            get { return PokemonInfo.CalculatePokemonPerfection(PokemonData); }
         }
 
-        public string Nickname {
+        public string Nickname
+        {
             get { return PokemonData.Nickname; }
         }
 
